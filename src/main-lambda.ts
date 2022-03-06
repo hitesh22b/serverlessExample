@@ -1,15 +1,9 @@
-// lambda.ts
 import { Handler, Context } from 'aws-lambda';
 import { Server } from 'http';
 import { createServer, proxy } from 'aws-serverless-express';
 import { eventContext } from 'aws-serverless-express/middleware';
-
-import { NestFactory } from '@nestjs/core';
-import { ExpressAdapter } from '@nestjs/platform-express';
-import { AppModule } from './app.module';
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const express = require('express');
+import { INestApplication } from '@nestjs/common';
+import createApp from './app';
 
 // NOTE: If you get ERR_CONTENT_DECODING_FAILED in your browser, this is likely
 // due to a compressed response (e.g. gzip) which has not been handled correctly
@@ -21,14 +15,16 @@ let cachedServer: Server;
 
 async function bootstrapServer(): Promise<Server> {
   if (!cachedServer) {
-    const expressApp = express();
-    const nestApp = await NestFactory.create(
-      AppModule,
-      new ExpressAdapter(expressApp),
+    const app: INestApplication = await createApp();
+
+    app.use(eventContext());
+    await app.init();
+
+    cachedServer = createServer(
+      app.getHttpAdapter().getInstance(),
+      undefined,
+      binaryMimeTypes,
     );
-    nestApp.use(eventContext());
-    await nestApp.init();
-    cachedServer = createServer(expressApp, undefined, binaryMimeTypes);
   }
   return cachedServer;
 }
