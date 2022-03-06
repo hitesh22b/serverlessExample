@@ -10,10 +10,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@master
 
-      - name: Setup node v12
+      - name: Setup node v14
         uses: actions/setup-node@master
         with:
-          node-version: 12
+          node-version: 14
 
       - name: Cache
         uses: actions/cache@master
