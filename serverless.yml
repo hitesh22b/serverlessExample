@@ -7,8 +7,12 @@ plugins:
 
 provider:
   name: aws
+  region: ap-south-1
   stage: dev
   runtime: nodejs14.x
+  deploymentBucket:
+    name: deploys.crudapp-dev
+    serverSideEncryption: AES256
 
 functions:
   main: # The name of the lambda function
